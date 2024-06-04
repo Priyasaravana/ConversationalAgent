@@ -1,0 +1,30 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set environment variables to ensure the Python output is not buffered
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements file into the container
+COPY requirements.txt ./
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install procps for ps command
+RUN apt-get update && apt-get install -y procps
+
+# Copy the rest of the application code into the container
+COPY . .
+
+# Create a non-root user and switch to it
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+USER appuser
+
+# Expose the port the application runs on
+EXPOSE 8501
+
+# Run the application
+CMD ["streamlit", "run", "ChatGPT.py"]
